@@ -69,6 +69,8 @@ sub novel_index {
         my $title = $subtree->getElementsByClassName('widget-toc-episode-titleLabel')
                             ->innerText;
         my $update = $subtree->getElementsByTagName('time')->attributes->{datetime};
+        $update =~ s|(\d{4}-\d{2}-\d{2})T\d.+|$1|;
+        $update = &epochtime( $update );
         print "$update:  $title :: $url\n";
         $url_list->[$count] = [$title, $url, $update]; # タイトル、url、公開日
         $count++;
@@ -123,12 +125,12 @@ sub honbun {
 # YYYY.MM.DD -> epoch time.
 sub epochtime {
     my $item = shift;
-    my ($year, $month, $day) = split(/\./, $item);
+    my ($year, $month, $day) = split(/-/, $item);
     timelocal(0, 0, 0, $day, $month-1, $year-1900);
 }
 
 # epochtime -> YYYY.MM.DD
-sub timeepoc {
+sub timeepoch {
     my $item =shift;
     my ($mday,$month,$year) = (localtime($item))[3,4,5];
     sprintf("%4d.%02d.%02d", $year+1900, $month+1, $mday);
