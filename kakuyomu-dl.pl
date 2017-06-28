@@ -239,7 +239,9 @@ sub help {
           $url = $ARGV[0];
           my $body = &get_contents( $url );
           my $list = &novel_index( $body ); # 目次作成
-          print encode($charcode, &header( $body ) );
+          unless ($update) {
+              print encode($charcode, &header( $body ) );
+          }
           &get_all( $list );
       }
       elsif ($ARGV[0] =~ m|$url_prefix.+/episodes/|) {
