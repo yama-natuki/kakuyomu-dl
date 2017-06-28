@@ -15,7 +15,6 @@
 use strict;
 use warnings;
 use LWP::UserAgent;
-use HTML::TreeBuilder;
 use HTML::TagParser;
 use utf8;
 use Encode;
@@ -77,6 +76,16 @@ sub novel_index {
         $count++;
     }
     return $url_list;
+}
+
+# 最終更新日
+sub last_update {
+    my $item = shift;
+    $item = &html2tree($item);
+    $item = $item->getElementsByClassName('widget-toc-date')
+                 ->subTree
+                 ->getElementsByTagName('time')->attributes->{datetime};
+    return $item;
 }
 
 #コマンドラインの取得
