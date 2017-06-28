@@ -105,6 +105,23 @@ sub header {
     return sprintf("%s", $main_title . "\n" . $author . "\n\n\n");
 }
 
+# 本文処理
+sub honbun {
+    my $item = shift;
+    utf8::decode($item);
+    $item =~  m|.*<div class="widget-episodeBody .+? class="blank">(.+)<div id="episodeFooter">.+|s;
+    $item =   $1;
+    $item =~  s|(class="blank">)<br />|$1|g;
+    $item =~  s|<br />|\n|g;
+#    $item =~  s|<ruby>(.+?)<rt>(.+?)</rt></ruby>|｜$1《$2》|g;
+#    $item =~  s|<em>(.+?)</em>|［＃傍点］$1［＃傍点終わり］|g;
+    $item =~  s|<.*?>||g;
+    $item =~  s|！！|!!|g;
+    $item =~  s|！？|!\?|g;
+#    $item =~ tr|\x{ff5e}|\x{301c}|; #全角チルダ->波ダッシュ
+    return $item;
+}
+
 #コマンドラインの取得
 sub getopt() {
     GetOptions(
