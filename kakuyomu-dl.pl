@@ -274,6 +274,46 @@ sub get_path {
     return $fullpath;
 }
 
+sub jyunkai_save {
+    my $check_list = shift;
+    my $count = @$check_list;
+    my $path;
+    my $save_file;
+    for (my $i = 0; $i < $count; $i++) {
+        my $fname = $check_list->[$i]->{'file_name'};
+        my $url   = $check_list->[$i]->{'url'};
+        my $title = $check_list->[$i]->{'title'};
+        my $time  = $check_list->[$i]->{'update'};
+        if ( defined($time) ) {
+            $last_date = &epochtime( $time );
+            $update = 1;
+        }
+        $base_path = File::Spec->catfile( $savedir, $fname );
+        $save_file = &get_path($base_path, $fname) . ".txt";
+        open(STDOUT, ">>:encoding($charcode)", $save_file);
+        my $body = &get_contents( $url );
+        my $dl_list = &novel_index( $body ); # 目次作成
+        if (@$dl_list) {
+            print STDERR encode($charcode, "START :: " . $title . "\n");
+            unless ($update) {
+                print encode($charcode, &header( $body ) );
+            }
+            &get_all( $dl_list );
+            my $num = scalar(@$dl_list) -1;
+            # 最後の更新日をcheck listに入れる。
+            $check_list->[$i]->{update} = &timeepoch( $dl_list->[$num]->[2] );
+        }
+        else {
+            print STDERR encode($charcode, "No Update :: " . $title . "\n");
+        }
+        $base_path = undef;
+        $last_date = undef;
+        $update = undef;
+    }
+    close($save_file);
+    &save_list( $chklist, $check_list );
+}
+
 #main
 {
     my $url;
