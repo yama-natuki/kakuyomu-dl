@@ -206,6 +206,74 @@ sub help {
   exit 0;
 }
 
+# リスト読み込み
+sub load_list {
+    my $file_name = shift;
+    my $LIST;
+    my (@item, @list);
+    my %hash;
+    my $oldsep = $/;
+    $/ = "";                    # セパレータを空行に。段落モード
+    open ( $LIST, "<:encoding($charcode)" ,"$file_name") or die "$!";
+    while (my $line = <$LIST>) {
+        push(@item, $line);
+    }
+    close($LIST);
+    $/ = $oldsep;
+    # レコード処理
+    for (my $i =0; $i <= $#item; $i++) {
+        my @record = split('\n', $item[$i]);
+        foreach my $field (@record) {
+            if ($field =~ /^(title|file_name|url|update)/) {
+                my ($key, $value) = split(/=/, $field);
+                $key   =~ s/ *//g;
+                $value =~ s/^ *//g;
+                $value =~ s/"//g;
+                if ($value eq "") {
+                    print STDERR encode($charcode, "Err:: $field\n");
+                    exit 0;
+                }
+                $hash{$key} = $value; #ハッシュキーと値を追加。
+            }
+        }
+        if ($hash{'title'}) {
+            $list[$i] = {%hash}; # ハッシュを配列に格納
+        }
+        undef %hash;
+    }
+    undef @item;                #メモリ開放
+    return @list;
+}
+
+sub save_list {
+  my($path, $list) = @_;
+  open(STDOUT, ">:encoding($charcode)", $path);
+  foreach my $row (@$list) {
+    print encode($charcode,
+                 "title = " .     $row->{'title'} .     "\n" .
+                 "file_name = " . $row->{'file_name'} . "\n" .
+                 "url = " .       $row->{'url'} .       "\n" .
+                 "update = " .    $row->{'update'} . "\n\n\n"
+                 );
+  }
+  close($path);
+}
+
+sub get_path {
+    my ($path, $name) = @_;
+    my $fullpath;
+    if ( -d $path ) {
+        $fullpath = File::Spec->catfile($path, $name);
+    }
+    else {
+        require File::Path;
+        File::Path::make_path( $path );
+        $fullpath = File::Spec->catfile($path, $name);
+        print STDERR encode($charcode, "mkdir :: $fullpath\n");
+    }
+    return $fullpath;
+}
+
 #main
 {
     my $url;
