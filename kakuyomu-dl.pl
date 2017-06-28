@@ -49,12 +49,12 @@ sub get_contents {
 # htmlパース
 sub html2tree {
     my $item = shift;
-    my $tree = HTML::TreeBuilder->new;
-    $tree->no_space_compacting;
+    my $tree = HTML::TagParser->new;
     $tree->parse($item);
     return $tree;
     $tree->delete;
 }
+
 
 # 目次作成
 sub novel_index {
@@ -66,12 +66,14 @@ sub novel_index {
     foreach my $tmp (@mokuji) {
         my $subtree = $tmp->subTree;
         my $url = $subtree->getElementsByTagName("a")->attributes->{href};
+        $url = $url_prefix . $url;
         my $title = $subtree->getElementsByClassName('widget-toc-episode-titleLabel')
                             ->innerText;
+        utf8::decode($title);
         my $update = $subtree->getElementsByTagName('time')->attributes->{datetime};
         $update =~ s|(\d{4}-\d{2}-\d{2})T\d.+|$1|;
         $update = &epochtime( $update );
-        print "$update:  $title :: $url\n";
+#        print "$update:  $title :: $url\n";
         $url_list->[$count] = [$title, $url, $update]; # タイトル、url、公開日
         $count++;
     }
@@ -102,6 +104,8 @@ sub header {
                       ->getElementById('workAuthor')
                       ->subTree
                       ->getElementById('workAuthor-activityName')->innerText;
+    utf8::decode($main_title);
+    utf8::decode($author);
     return sprintf("%s", $main_title . "\n" . $author . "\n\n\n");
 }
 
@@ -116,9 +120,32 @@ sub honbun {
 #    $item =~  s|<ruby>(.+?)<rt>(.+?)</rt></ruby>|｜$1《$2》|g;
 #    $item =~  s|<em>(.+?)</em>|［＃傍点］$1［＃傍点終わり］|g;
     $item =~  s|<.*?>||g;
+    $item =~  s|^\s+$||gm;
     $item =~  s|！！|!!|g;
     $item =~  s|！？|!\?|g;
 #    $item =~ tr|\x{ff5e}|\x{301c}|; #全角チルダ->波ダッシュ
+    return $item;
+}
+sub get_all {
+    my $index = shift;
+    my $count = scalar(@$index);
+    my $item;
+    for ( my $i = 0; $i < $count; $i++) {
+        my $text = &get_contents( scalar(@$index[$i]->[1]) );
+        $text = &honbun( $text );
+        my $title = scalar(@$index[$i]->[0]);
+        my $time = &timeepoch( scalar(@$index[$i]->[2]) );
+        $item = &honbun_formater( $text, $title );
+        print STDERR encode($charcode, "success:: $time : $title \n");
+        print encode($charcode, $item);
+    }
+}
+
+sub honbun_formater  {
+    my ($text, $title) = @_;
+    my $item;
+    my $midasi = "\n［＃中見出し］" . $title . "［＃中見出し終わり］\n\n\n";
+    $item = $kaipage . $separator . $midasi . $text . "\n\n" . $separator;
     return $item;
 }
 
@@ -202,8 +229,8 @@ sub help {
           $url = $ARGV[0];
           my $body = &get_contents( $url );
           my $list = &novel_index( $body ); # 目次作成
-#          print encode($charcode, &header( $body ) );
-#          &get_all( $list );
+          print encode($charcode, &header( $body ) );
+          &get_all( $list );
       }
       elsif ($ARGV[0] =~ m|$url_prefix.+/episodes/|) {
           print STDERR encode($charcode,
