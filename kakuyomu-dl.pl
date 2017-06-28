@@ -128,7 +128,7 @@ sub honbun {
     $item =~  s|(class="blank">)<br />|$1|g;
     $item =~  s|<br />|\n|g;
     $item =~  s|<ruby>(.+?)<rt>(.+?)</rt></ruby>|｜$1《$2》|g;
-#    $item =~  s|<em>(.+?)</em>|［＃傍点］$1［＃傍点終わり］|g;
+    $item =~  s|<em>(.+?)</em>|［＃傍点］$1［＃傍点終わり］|g;
     $item =~  s|<.*?>||g;
     $item =~  s|^\s+$||gm;
     $item =~  s|！！|!!|g;
