@@ -21,7 +21,14 @@
 #     kakuyomu-dl.pl -c check.lst -s ~/Desktop
 # と指定するとcheck.lstを読み込んで、~/Desktop/以下に個別Dirを作成して保存してくれる。
 #
+# リストの書式は、
+#    title = 作品名
+#    file_name = 保存するファイル名
+#    url = https://kakuyomu.jp/works/xxxxxxxxxxxxxxxxxxx
+# とし、各レコードは空行で区切る。
+# 詳しくは同梱のサンプルを参照。
 #
+
 
 use strict;
 use warnings;
