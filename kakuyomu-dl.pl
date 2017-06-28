@@ -170,7 +170,7 @@ sub epochtime {
 sub timeepoch {
     my $item =shift;
     my ($mday,$month,$year) = (localtime($item))[3,4,5];
-    sprintf("%4d.%02d.%02d", $year+1900, $month+1, $mday);
+    sprintf("%4d-%02d-%02d", $year+1900, $month+1, $mday);
 }
 
 #コマンドラインの取得
