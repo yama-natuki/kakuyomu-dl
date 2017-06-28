@@ -73,7 +73,7 @@ sub novel_index {
         my $update = $subtree->getElementsByTagName('time')->attributes->{datetime};
         $update =~ s|(\d{4}-\d{2}-\d{2})T\d.+|$1|;
         $update = &epochtime( $update );
-#        print "$update:  $title :: $url\n";
+#        print STDERR encode($charcode, "$update:  $title :: $url\n");
         $url_list->[$count] = [$title, $url, $update]; # タイトル、url、公開日
         $count++;
     }
@@ -117,7 +117,7 @@ sub honbun {
     $item =   $1;
     $item =~  s|(class="blank">)<br />|$1|g;
     $item =~  s|<br />|\n|g;
-#    $item =~  s|<ruby>(.+?)<rt>(.+?)</rt></ruby>|｜$1《$2》|g;
+    $item =~  s|<ruby>(.+?)<rt>(.+?)</rt></ruby>|｜$1《$2》|g;
 #    $item =~  s|<em>(.+?)</em>|［＃傍点］$1［＃傍点終わり］|g;
     $item =~  s|<.*?>||g;
     $item =~  s|^\s+$||gm;
