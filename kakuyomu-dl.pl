@@ -28,8 +28,6 @@ my $url_prefix = "https://kakuyomu.jp";
 my $user_agent = 'Mozilla/5.0 (X11; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0';
 my $separator = "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼\n";
 my $kaipage = "［＃改ページ］\n";
-my ($main_title, $author );
-my $chapter_title;
 my ($chklist, $savedir, $split_size, $update, $show_help );
 my $last_date;  #前回までの取得日
 my $base_path;  #保存先dir
@@ -120,6 +118,20 @@ sub honbun {
     $item =~  s|！？|!\?|g;
 #    $item =~ tr|\x{ff5e}|\x{301c}|; #全角チルダ->波ダッシュ
     return $item;
+}
+
+# YYYY.MM.DD -> epoch time.
+sub epochtime {
+    my $item = shift;
+    my ($year, $month, $day) = split(/\./, $item);
+    timelocal(0, 0, 0, $day, $month-1, $year-1900);
+}
+
+# epochtime -> YYYY.MM.DD
+sub timeepoc {
+    my $item =shift;
+    my ($mday,$month,$year) = (localtime($item))[3,4,5];
+    sprintf("%4d.%02d.%02d", $year+1900, $month+1, $mday);
 }
 
 #コマンドラインの取得
