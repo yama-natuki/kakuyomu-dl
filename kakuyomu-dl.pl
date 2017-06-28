@@ -88,6 +88,23 @@ sub last_update {
     return $item;
 }
 
+# 作品名、著者名取得
+sub header {
+    my $item = shift;
+    $item = &html2tree( $item );
+    my $main_title = $item->getElementsByClassName('widget-works-workHeader')
+                          ->subTree
+                          ->getElementById('workTitle')
+                          ->subTree
+                          ->getElementsByTagName("a")->innerText;
+    my $author = $item->getElementsByClassName('widget-works-workHeader')
+                      ->subTree
+                      ->getElementById('workAuthor')
+                      ->subTree
+                      ->getElementById('workAuthor-activityName')->innerText;
+    return sprintf("%s", $main_title . "\n" . $author . "\n\n\n");
+}
+
 #コマンドラインの取得
 sub getopt() {
     GetOptions(
