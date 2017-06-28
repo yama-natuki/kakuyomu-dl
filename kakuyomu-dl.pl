@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use LWP::UserAgent;
 use HTML::TreeBuilder;
+use HTML::TagParser;
 use utf8;
 use Encode;
 use File::Basename;
@@ -56,6 +57,26 @@ sub html2tree {
     $tree->parse($item);
     return $tree;
     $tree->delete;
+}
+
+# 目次作成
+sub novel_index {
+    my $item = shift;
+    my $url_list = [];          # リファレンス初期化
+    my $count = 0;
+    $item = &html2tree($item);
+    my @mokuji = $item->getElementsByClassName('widget-toc-episode');
+    foreach my $tmp (@mokuji) {
+        my $subtree = $tmp->subTree;
+        my $url = $subtree->getElementsByTagName("a")->attributes->{href};
+        my $title = $subtree->getElementsByClassName('widget-toc-episode-titleLabel')
+                            ->innerText;
+        my $update = $subtree->getElementsByTagName('time')->attributes->{datetime};
+        print "$update:  $title :: $url\n";
+        $url_list->[$count] = [$title, $url, $update]; # タイトル、url、公開日
+        $count++;
+    }
+    return $url_list;
 }
 
 #コマンドラインの取得
@@ -120,10 +141,10 @@ sub help {
     }
 
   if (@ARGV == 1) {
-      if ($ARGV[0] =~ m|$url_prefix/works/\d{20}$|) {
+      if ($ARGV[0] =~ m|$url_prefix/works/\d{19}$|) {
           $url = $ARGV[0];
           my $body = &get_contents( $url );
-          my $list = &get_index( $body ); # 目次作成
+          my $list = &novel_index( $body ); # 目次作成
 #          print encode($charcode, &header( $body ) );
 #          &get_all( $list );
       }
@@ -135,7 +156,7 @@ sub help {
       else {
           print STDERR encode($charcode,
                               "URLの形式が、『" .
-                              "$url_prefix/novel/20桁の数字" .
+                              "$url_prefix/works/19桁の数字" .
                               "』\nと違います" . "\n"
                              );
       }
