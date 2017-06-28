@@ -77,6 +77,16 @@ sub novel_index {
         $url_list->[$count] = [$title, $url, $update]; # タイトル、url、公開日
         $count++;
     }
+
+    if ($update) {
+        my @reverse = reverse( @$url_list );
+        my @up_list = ();
+        for (my $i = 0; $reverse[$i]->[2] > $last_date; $i++) {
+            push(@up_list, $reverse[$i]);
+        }
+        @up_list = reverse( @up_list );
+        $url_list = \@up_list;
+    }
     return $url_list;
 }
 
@@ -188,7 +198,7 @@ sub help {
         "\t\t\t保存先ディレクトリを指定する。\n".
         "\t\t\t保存先にサブディレクトリを作って個別に保存される。\n".
         "\t\t-u|--update\n".
-        "\t\t\tYY.MM.DD形式の日付を与えると、その日付以降の\n".
+        "\t\t\tYY-MM-DD形式の日付を与えると、その日付以降の\n".
         "\t\t\tデータだけをダウンロードする。\n".
         "\t\t-h|--help\n".
         "\t\t\tこのテキストを表示する。\n"
@@ -212,13 +222,13 @@ sub help {
     }
 
     if ($update) {
-        if ($update =~ m|\d{2}\.\d{2}\.\d{2}| ) {
+        if ($update =~ m|\d{2}-\d{2}-\d{2}| ) {
             $last_date = "20" . $update;
             $last_date = &epochtime( $last_date);
         }
         else {
             print STDERR encode($charcode,
-                                "YY.MM.DD の形式で入力してください\n"
+                                "YY-MM-DD の形式で入力してください\n"
                                );
             exit 0;
         }
