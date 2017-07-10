@@ -46,7 +46,7 @@ my $url_prefix = "https://kakuyomu.jp";
 my $user_agent = 'Mozilla/5.0 (X11; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0';
 my $separator = "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼\n";
 my $kaipage = "［＃改ページ］\n";
-my ($chklist, $savedir, $split_size, $update, $show_help );
+my ($dryrun, $chklist, $savedir, $split_size, $update, $show_help );
 my $last_date;  #前回までの取得日
 my $base_path;  #保存先dir
 my $charcode = 'UTF-8';
@@ -197,6 +197,7 @@ sub getopt() {
                "chklist|c=s" => \$chklist,
                "savedir|s=s" => \$savedir,
                "update|u=s"  => \$update,
+               "dry-run|n"   => \$dryrun,
                "help|h"      => \$show_help
               );
 }
@@ -218,6 +219,8 @@ sub help {
         "\t\t-u|--update\n".
         "\t\t\tYY-MM-DD形式の日付を与えると、その日付以降の\n".
         "\t\t\tデータだけをダウンロードする。\n".
+        "\t\t-n|--dry-run\n".
+        "\t\t\t実際には書き込まないで実行する。\n".
         "\t\t-h|--help\n".
         "\t\t\tこのテキストを表示する。\n"
       );
@@ -306,8 +309,16 @@ sub jyunkai_save {
             $last_date = &epochtime( $time );
             $update = 1;
         }
+        
         $base_path = File::Spec->catfile( $savedir, $fname );
-        $save_file = &get_path($base_path, $fname) . ".txt";
+        if ($dryrun) {
+            if ($^O =~ m/MSWin32/) { $save_file = "nul"; }
+            else                   { $save_file = "/dev/null"; }
+        }
+        else {
+            $save_file = &get_path($base_path, $fname ) . ".txt";
+        }
+
         open(STDOUT, ">>:encoding($charcode)", $save_file);
         my $body = &get_contents( $url );
         my $dl_list = &novel_index( $body ); # 目次作成
@@ -328,8 +339,12 @@ sub jyunkai_save {
         $last_date = undef;
         $update = undef;
     }
+
     close($save_file);
-    &save_list( $chklist, $check_list );
+    unless ($dryrun) {
+        &save_list( $chklist, $check_list );
+    }
+
 }
 
 #main
