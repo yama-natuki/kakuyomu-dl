@@ -290,7 +290,7 @@ sub get_path {
         require File::Path;
         File::Path::make_path( $path );
         $fullpath = File::Spec->catfile($path, $name);
-        print STDERR encode($charcode, "mkdir :: $fullpath\n");
+        print STDERR encode($charcode, "mkdir :: $path\n");
     }
     return $fullpath;
 }
