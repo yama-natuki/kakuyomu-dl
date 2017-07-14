@@ -309,7 +309,9 @@ sub jyunkai_save {
             $last_date = &epochtime( $time );
             $update = 1;
         }
-        
+        else {
+            $update = 0;
+        }
         $base_path = File::Spec->catfile( $savedir, $fname );
         if ($dryrun) {
             if ($^O =~ m/MSWin32/) { $save_file = "nul"; }
