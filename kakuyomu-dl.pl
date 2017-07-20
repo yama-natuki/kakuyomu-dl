@@ -62,10 +62,17 @@ if ($^O =~ m/MSWin32/) {
 
 sub get_contents {
     my $address = shift;
+    my $content;
     my $http = LWP::UserAgent->new;
+    $http->timeout(60);
     $http->agent($user_agent);
     my $res = $http->get($address);
-    my $content = $res->content;
+    if ($res->is_success) {
+        $content = $res->content;
+    }
+    else {
+        die sprintf("error(%d): %s", $res->code, $res->message);
+    }
     return $content;
 }
 
