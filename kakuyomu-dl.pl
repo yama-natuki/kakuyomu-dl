@@ -153,7 +153,7 @@ sub header {
 sub honbun {
     my $item = shift;
     utf8::decode($item);
-    $item =~  m|.*<div class="widget-episodeBody .+? class="blank">(.+)<div id="episodeFooter">.+|s;
+    $item =~  m|.*<div class="widget-episodeBody[^>]*>(.+)<div id="episodeFooter">.+|s;
     $item =   $1;
     $item =~  s|(class="blank">)<br />|$1|g;
     $item =~  s|<br />|\n|g;
