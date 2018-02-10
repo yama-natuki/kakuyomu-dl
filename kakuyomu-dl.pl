@@ -134,12 +134,12 @@ sub last_update {
 sub header {
     my $item = shift;
     $item = &html2tree( $item );
-    my $main_title = $item->getElementsByClassName('widget-works-workHeader')
+    my $main_title = $item->getElementById('workHeader-inner')
                           ->subTree
                           ->getElementById('workTitle')
                           ->subTree
                           ->getElementsByTagName("a")->innerText;
-    my $author = $item->getElementsByClassName('widget-works-workHeader')
+    my $author = $item->getElementById('workHeader-inner')
                       ->subTree
                       ->getElementById('workAuthor')
                       ->subTree
