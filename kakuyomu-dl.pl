@@ -97,7 +97,7 @@ sub novel_index {
         my $subtree = $tmp->subTree;
         my $url = $subtree->getElementsByTagName("a")->attributes->{href};
         $url = $url_prefix . $url;
-        my $title = $subtree->getElementsByClassName('widget-toc-episode-titleLabel')
+        my $title = $subtree->getElementsByClassName('widget-toc-episode-titleLabel js-vertical-composition-item')
                             ->innerText;
         utf8::decode($title);
         my $update = $subtree->getElementsByTagName('time')->attributes->{datetime};
